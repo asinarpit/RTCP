@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  name      String?
+  password  String
+  avatar    String?   // URL to image
+  color     String    @default("#000000") // Assigned cursor color
+  documents Document[] @relation("DocumentOwner")
+  comments  Comment[]
+}
+model Document {
+  id        String    @id @default(uuid())
+  title     String    @default("Untitled Document")
+  content   Bytes?    // The Yjs document binary state
+  ownerId   String
+  owner     User      @relation("DocumentOwner", fields: [ownerId], references: [id])
+  versions  Version[]
+  comments  Comment[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+model Version {
+  id         String   @id @default(uuid())
+  snapshot   Bytes    // The binary state at this point in time
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id])
+  createdAt  DateTime @default(now())
+}
+model Comment {
+  id         String   @id @default(uuid())
+  text       String
+  position   String   // JSON string representing the Yjs 'Relative Position'
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id])
+  createdAt  DateTime @default(now())
+}
