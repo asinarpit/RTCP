@@ -8,6 +8,7 @@ import morgan from "morgan"
 import { errorHandler } from "./middlewares/error.middleware"
 import authRoutes from "./routes/authRoutes"
 import documentRoutes from "./routes/documentRoutes";
+import { initSocket } from "./sockets/socketManager"
 
 const app = express();
 
@@ -26,18 +27,22 @@ app.use("/api/documents", documentRoutes)
 app.use(errorHandler)
 
 
-//socke.io init
+//socktet.io init
 const io = new Server(server, {
     cors:{
         origin: "http://localhost:3000",
         methods: ["GET", "POST"]
     }
 })
+
+initSocket(io);
+
 const PORT = process.env.PORT || 5000;
 
 app.get("/",(req,res)=>{
     res.send("Server is running :)")
 })
+
 
 server.listen(PORT, ()=>{
     console.log(`Server running on port ${PORT}`)
