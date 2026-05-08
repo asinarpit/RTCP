@@ -56,9 +56,8 @@ const EditorPage = () => {
     const editor = useEditor({
         extensions: [
             StarterKit.configure({
-                // @ts-ignore
                 history: false,
-            }),
+            } as any),
             Collaboration.configure({
                 document: ydoc,
             }),
