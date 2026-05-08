@@ -1,0 +1,13 @@
+import express from "express";
+import { createDocument, listMyDocuments, getDocumentById, updateDocument, deleteDocument } from "../controllers/document";
+import { validate } from "../middlewares/validate.middleware";
+import { createDocumentSchema, getDocumentSchema, updateDocumentSchema, deleteDocumentSchema } from "../validations/document.validation";
+import { protect } from "../middlewares/auth.middleware";
+const router = express.Router();
+router.use(protect);
+router.post("/", validate(createDocumentSchema), createDocument);
+router.get("/", listMyDocuments);
+router.get("/:id", validate(getDocumentSchema), getDocumentById);
+router.patch("/:id", validate(updateDocumentSchema), updateDocument);
+router.delete("/:id", validate(deleteDocumentSchema), deleteDocument);
+export default router;
