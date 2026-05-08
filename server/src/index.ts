@@ -10,12 +10,18 @@ import authRoutes from "./routes/authRoutes"
 import documentRoutes from "./routes/documentRoutes";
 import { initSocket } from "./sockets/socketManager"
 
+import cors from "cors";
+
 const app = express();
 
 const server = http.createServer(app);
 
 
 //middlewares
+app.use(cors({
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
@@ -27,13 +33,14 @@ app.use("/api/documents", documentRoutes)
 app.use(errorHandler)
 
 
-//socktet.io init
+//socket.io init
 const io = new Server(server, {
     cors:{
-        origin: "http://localhost:3000",
+        origin: process.env.CLIENT_URL || "http://localhost:5173",
         methods: ["GET", "POST"]
     }
 })
+
 
 initSocket(io);
 
@@ -46,4 +53,17 @@ app.get("/",(req,res)=>{
 
 server.listen(PORT, ()=>{
     console.log(`Server running on port ${PORT}`)
+    
+    // Keep Render alive
+    const url = process.env.RENDER_EXTERNAL_URL;
+    if (url) {
+        console.log(`Self-pinging started for ${url}`);
+        setInterval(() => {
+            http.get(url, (res) => {
+                console.log(`Self-ping status: ${res.statusCode}`);
+            }).on('error', (err) => {
+                console.error(`Self-ping error: ${err.message}`);
+            });
+        }, 10 * 60 * 1000); // Every 10 minutes
+    }
 })

@@ -89,10 +89,6 @@ const getDocumentById = async (req: AuthRequest, res: Response) => {
             })
         }
 
-        if (document.ownerId !== userId) {
-            return res.status(403).json({ message: "Forbidden access...you're not the owner" })
-        }
-
         res.status(200).json({
             message: "Document successfully fetched",
             document
@@ -104,4 +100,61 @@ const getDocumentById = async (req: AuthRequest, res: Response) => {
     }
 }
 
-export { createDocument, listMyDocuments, getDocumentById }
+const updateDocument = async (req: AuthRequest, res: Response) => {
+    try {
+        const { id } = req.params as { id: string };
+        const { title } = req.body;
+        const userId = req.user?.id;
+
+        if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+        const document = await prisma.document.findUnique({ where: { id } });
+
+        if (!document) return res.status(404).json({ message: "Document not found" });
+
+        if (document.ownerId !== userId) {
+            return res.status(403).json({ message: "Forbidden: You are not the owner" });
+        }
+
+        const updatedDoc = await prisma.document.update({
+            where: { id },
+            data: { title }
+        });
+
+        return res.status(200).json({
+            message: "Document updated successfully",
+            document: updatedDoc
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+}
+
+const deleteDocument = async (req: AuthRequest, res: Response) => {
+    try {
+        const { id } = req.params as { id: string };
+        const userId = req.user?.id;
+
+        if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+        const document = await prisma.document.findUnique({ where: { id } });
+
+        if (!document) return res.status(404).json({ message: "Document not found" });
+
+        if (document.ownerId !== userId) {
+            return res.status(403).json({ message: "Forbidden: You are not the owner" });
+        }
+
+        await prisma.document.delete({ where: { id } });
+
+        return res.status(200).json({ message: "Document deleted successfully" });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+}
+
+export { createDocument, listMyDocuments, getDocumentById, updateDocument, deleteDocument }

@@ -13,40 +13,20 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
+  id        String     @id @default(uuid())
+  email     String     @unique
   name      String?
   password  String
-  avatar    String?   // URL to image
-  color     String    @default("#000000") // Assigned cursor color
+  avatar    String?
+  color     String     @default("#000000")
   documents Document[] @relation("DocumentOwner")
-  comments  Comment[]
 }
 model Document {
-  id        String    @id @default(uuid())
-  title     String    @default("Untitled Document")
-  content   Bytes?    // The Yjs document binary state
+  id        String   @id @default(uuid())
+  title     String   @default("Untitled Document")
+  content   Bytes?
   ownerId   String
-  owner     User      @relation("DocumentOwner", fields: [ownerId], references: [id])
-  versions  Version[]
-  comments  Comment[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-}
-model Version {
-  id         String   @id @default(uuid())
-  snapshot   Bytes    // The binary state at this point in time
-  documentId String
-  document   Document @relation(fields: [documentId], references: [id])
-  createdAt  DateTime @default(now())
-}
-model Comment {
-  id         String   @id @default(uuid())
-  text       String
-  position   String   // JSON string representing the Yjs 'Relative Position'
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
-  documentId String
-  document   Document @relation(fields: [documentId], references: [id])
-  createdAt  DateTime @default(now())
+  owner     User     @relation("DocumentOwner", fields: [ownerId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

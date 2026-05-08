@@ -66,7 +66,9 @@ const login = async (req: Request, res: Response) => {
             token,
             user: {
                 id: user.id,
-                email: user.email
+                email: user.email,
+                name: user.name,
+                color: user.color
             }
         })
 
@@ -108,6 +110,7 @@ const register = async (req: Request, res: Response) => {
                 id: user.id,
                 name: user.name,
                 email: user.email,
+                color: user.color
             }
         })
     }
