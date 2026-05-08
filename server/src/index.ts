@@ -1,7 +1,7 @@
-import express from "express"
+import express, { Request, Response } from "express"
 import 'dotenv/config'
 import {prisma} from './lib/prisma'
-import http from "http"
+import http, { IncomingMessage } from "http"
 import { Server } from "socket.io"
 import helmet from "helmet"
 import morgan from "morgan"
@@ -46,12 +46,12 @@ initSocket(io);
 
 const PORT = process.env.PORT || 5000;
 
-app.get("/",(req,res)=>{
+app.get("/", (req: Request, res: Response) => {
     res.send("Server is running :)")
 })
 
 
-server.listen(PORT, ()=>{
+server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
     
     // Keep Render alive
@@ -59,11 +59,11 @@ server.listen(PORT, ()=>{
     if (url) {
         console.log(`Self-pinging started for ${url}`);
         setInterval(() => {
-            http.get(url, (res) => {
+            http.get(url, (res: IncomingMessage) => {
                 console.log(`Self-ping status: ${res.statusCode}`);
-            }).on('error', (err) => {
+            }).on('error', (err: Error) => {
                 console.error(`Self-ping error: ${err.message}`);
             });
         }, 10 * 60 * 1000); // Every 10 minutes
     }
-})
+})

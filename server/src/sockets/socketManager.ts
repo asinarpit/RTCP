@@ -28,7 +28,7 @@ const persistDoc = async (documentId: string, ydoc: Y.Doc) => {
 
 export const initSocket = (io: Server) => {
     //jwt auth middleware
-    io.use((socket, next) => {
+    io.use((socket: any, next: (err?: Error) => void) => {
         //for postman testing
         const token = socket.handshake.headers.token || socket.handshake.auth.token;
         if (!token) {
@@ -115,7 +115,7 @@ export const initSocket = (io: Server) => {
 
         //disconnection - RAM eviction
         socket.on("disconnecting", () => {
-            socket.rooms.forEach((roomId) => {
+            socket.rooms.forEach((roomId: string) => {
                 if (roomId === socket.id) return;
 
                 const room = io.sockets.adapter.rooms.get(roomId);
