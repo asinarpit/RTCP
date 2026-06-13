@@ -61,11 +61,6 @@ export const initSocket = (io: Server) => {
                 return;
             }
 
-            if (doc.ownerId !== socket.data.userId) {
-                socket.emit("error", "Forbidden: You do not have access to this document");
-                return;
-            }
-
             let ydoc = ACTIVE_DOCS.get(documentId);
             if (!ydoc) {
                 ydoc = new Y.Doc();
