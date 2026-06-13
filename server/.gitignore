@@ -5,3 +5,8 @@ node_modules
 /src/generated/prisma
 
 /generated/prisma
+
+# Compiled files
+dist/
+src/**/*.js
+prisma.config.js
