@@ -24,6 +24,50 @@ const Dashboard = () => {
     const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
     const [editingDoc, setEditingDoc] = useState<{ id: string, title: string } | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [showJoinModal, setShowJoinModal] = useState(false);
+    const [joinValue, setJoinValue] = useState("");
+    const [joinError, setJoinError] = useState("");
+
+    const handleJoin = () => {
+        setJoinError("");
+        const input = joinValue.trim();
+        if (!input) {
+            setJoinError("INPUT_REQUIRED");
+            return;
+        }
+
+        // UUID validation pattern
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        let docId = "";
+
+        if (uuidRegex.test(input)) {
+            docId = input;
+        } else {
+            try {
+                // Try parsing input as a URL first
+                const url = new URL(input);
+                const pathParts = url.pathname.split('/');
+                const idFromPath = pathParts[pathParts.length - 1];
+                if (uuidRegex.test(idFromPath)) {
+                    docId = idFromPath;
+                }
+            } catch (e) {
+                // If not a URL, extract UUID substring from path if present
+                const match = input.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+                if (match) {
+                    docId = match[0];
+                }
+            }
+        }
+
+        if (docId) {
+            setShowJoinModal(false);
+            setJoinValue("");
+            navigate(`/document/${docId}`);
+        } else {
+            setJoinError("INVALID_DOCUMENT_ID_OR_LINK");
+        }
+    };
 
     const api = axios.create({
         baseURL: API,
@@ -108,6 +152,7 @@ const Dashboard = () => {
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
                 onNewDocument={() => setShowModal(true)}
+                onJoinDocument={() => setShowJoinModal(true)}
                 onLogout={logout}
             />
 
@@ -200,6 +245,12 @@ const Dashboard = () => {
                 setDeletingId={setDeletingId}
                 onDelete={(id) => deleteMutation.mutate(id)}
                 isCreating={createMutation.isPending}
+                showJoin={showJoinModal}
+                setShowJoin={setShowJoinModal}
+                joinValue={joinValue}
+                setJoinValue={setJoinValue}
+                joinError={joinError}
+                onJoin={handleJoin}
             />
 
             <style>{`

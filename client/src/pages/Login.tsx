@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../store/auth.store";
 import { Command, ShieldCheck, Mail, Lock, Eye, EyeOff } from "lucide-react";
 
@@ -13,6 +13,8 @@ const Login = () => {
 
     const login = useAuthStore((state) => state.login);
     const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from || "/dashboard";
 
     const loginMutation = useMutation({
         mutationFn: async (data: any) => {
@@ -21,7 +23,7 @@ const Login = () => {
         },
         onSuccess: (data) => {
             login(data.user, data.token);
-            navigate("/dashboard");
+            navigate(from);
         },
         onError: (error: any) => {
             setLocalError(error.response?.data?.message || "Login failed");

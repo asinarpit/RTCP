@@ -19,6 +19,17 @@ import EditorNav from "../components/editor/EditorNav";
 const API = import.meta.env.VITE_API_URL;
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
 
+const toUint8Array = (data: any): Uint8Array => {
+    if (!data) return new Uint8Array(0);
+    if (data instanceof Uint8Array) return data;
+    if (data instanceof ArrayBuffer) return new Uint8Array(data);
+    if (data && data.type === 'Buffer' && Array.isArray(data.data)) {
+        return new Uint8Array(data.data);
+    }
+    if (Array.isArray(data)) return new Uint8Array(data);
+    return new Uint8Array(data);
+};
+
 const EditorPage = () => {
     const { id: documentId } = useParams();
     const navigate = useNavigate();
@@ -82,13 +93,27 @@ const EditorPage = () => {
 
         socket.emit("join-document", documentId);
 
-        socket.on("load-document", (binary: Uint8Array) => {
-            Y.applyUpdate(ydoc, new Uint8Array(binary));
-            setStatus("ready");
+        socket.on("load-document", (binary: any) => {
+            console.log("[Socket] load-document event received:", binary);
+            try {
+                const arr = toUint8Array(binary);
+                console.log(`[Socket] Applying initial doc state (size: ${arr.length} bytes)`);
+                Y.applyUpdate(ydoc, arr);
+                setStatus("ready");
+            } catch (err) {
+                console.error("[Socket] Error applying load-document:", err);
+                setStatus("error");
+            }
         });
 
-        socket.on("sync-update", (update: Uint8Array) => {
-            Y.applyUpdate(ydoc, new Uint8Array(update));
+        socket.on("sync-update", (update: any) => {
+            console.log("[Socket] sync-update event received");
+            try {
+                const arr = toUint8Array(update);
+                Y.applyUpdate(ydoc, arr);
+            } catch (err) {
+                console.error("[Socket] Error applying sync-update:", err);
+            }
         });
 
         const handleDocUpdate = (update: Uint8Array, origin: any) => {
@@ -98,8 +123,13 @@ const EditorPage = () => {
         };
         ydoc.on("update", handleDocUpdate);
 
-        socket.on("awareness-update", (update: Uint8Array) => {
-            awarenessProtocol.applyAwarenessUpdate(awareness, new Uint8Array(update), "remote");
+        socket.on("awareness-update", (update: any) => {
+            try {
+                const arr = toUint8Array(update);
+                awarenessProtocol.applyAwarenessUpdate(awareness, arr, "remote");
+            } catch (err) {
+                console.error("[Socket] Error applying awareness-update:", err);
+            }
         });
 
         const handleAwarenessUpdate = ({ added, updated, removed }: any) => {
@@ -109,12 +139,25 @@ const EditorPage = () => {
         };
         awareness.on("update", handleAwarenessUpdate);
 
+        // General socket connection & event error handling
+        socket.on("error", (err: any) => {
+            console.error("[Socket] General socket error:", err);
+            setStatus("error");
+        });
+
+        socket.on("connect_error", (err: any) => {
+            console.error("[Socket] Connection error:", err);
+            setStatus("error");
+        });
+
         return () => {
             ydoc.off("update", handleDocUpdate);
             awareness.off("update", handleAwarenessUpdate);
             socket.off("load-document");
             socket.off("sync-update");
             socket.off("awareness-update");
+            socket.off("error");
+            socket.off("connect_error");
             socket.disconnect();
         };
     }, [documentId, socket, ydoc, awareness]);

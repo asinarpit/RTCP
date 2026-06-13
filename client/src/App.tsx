@@ -26,7 +26,7 @@ function App() {
           />
           <Route 
             path="/document/:id" 
-            element={isAuth ? <Editor /> : <Navigate to="/login" />} 
+            element={isAuth ? <Editor /> : <Navigate to="/login" state={{ from: window.location.pathname }} />} 
           />
 
           {/* Fallback */}

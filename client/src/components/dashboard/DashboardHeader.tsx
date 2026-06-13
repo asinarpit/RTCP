@@ -1,14 +1,15 @@
-import { Command, Search, Plus, LogOut } from 'lucide-react';
+import { Command, Search, Plus, LogOut, Link2 } from 'lucide-react';
 
 interface DashboardHeaderProps {
     userName: string;
     searchQuery: string;
     onSearchChange: (value: string) => void;
     onNewDocument: () => void;
+    onJoinDocument: () => void;
     onLogout: () => void;
 }
 
-const DashboardHeader = ({ userName, searchQuery, onSearchChange, onNewDocument, onLogout }: DashboardHeaderProps) => {
+const DashboardHeader = ({ userName, searchQuery, onSearchChange, onNewDocument, onJoinDocument, onLogout }: DashboardHeaderProps) => {
     return (
         <header className="border-b-2 border-paper-ink bg-white/80 backdrop-blur-sm sticky top-0 z-20">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
@@ -36,6 +37,13 @@ const DashboardHeader = ({ userName, searchQuery, onSearchChange, onNewDocument,
                     </div>
 
                     <div className="flex items-center gap-3 sm:gap-6">
+                        <button 
+                            onClick={onJoinDocument}
+                            className="flex items-center gap-2 bg-white text-paper-ink border-2 border-paper-ink px-4 py-2.5 sm:px-6 sm:py-2.5 font-black uppercase tracking-widest text-[11px] hover:bg-paper-bg/80 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 cursor-pointer"
+                        >
+                            <Link2 size={14} />
+                            <span className="hidden sm:inline">JOIN_SESSION</span>
+                        </button>
                         <button 
                             onClick={onNewDocument}
                             className="flex items-center gap-2 bg-paper-ink text-white p-3 sm:px-6 sm:py-3 font-black uppercase tracking-widest text-[11px] hover:bg-paper-ink/90 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 cursor-pointer"

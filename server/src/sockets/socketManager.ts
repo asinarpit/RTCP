@@ -52,28 +52,53 @@ export const initSocket = (io: Server) => {
 
         //join document room
         socket.on("join-document", async (documentId: string) => {
-            const doc = await prisma.document.findUnique({
-                where: { id: documentId }
-            });
-
-            if (!doc) {
-                socket.emit("error", "Document not found");
-                return;
-            }
-
-            let ydoc = ACTIVE_DOCS.get(documentId);
-            if (!ydoc) {
-                ydoc = new Y.Doc();
-                if (doc.content) {
-                    Y.applyUpdate(ydoc, new Uint8Array(doc.content));
+            console.log(`[Socket] User ${socket.data.userId} requesting to join document: ${documentId}`);
+            
+            try {
+                // Quick UUID validation to avoid Prisma database syntax crash
+                const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+                if (!uuidRegex.test(documentId)) {
+                    console.error(`[Socket] Invalid UUID format provided: ${documentId}`);
+                    socket.emit("error", "Invalid document ID format");
+                    return;
                 }
-                ACTIVE_DOCS.set(documentId, ydoc);
-            }
 
-            socket.join(documentId);
-            console.log(`user ${socket.data.userId} joined document ${documentId}`);
-            const initialContent = doc.content || Y.encodeStateAsUpdate(ydoc);
-            socket.emit("load-document", initialContent);
+                const doc = await prisma.document.findUnique({
+                    where: { id: documentId }
+                });
+
+                if (!doc) {
+                    console.warn(`[Socket] Document not found in database: ${documentId}`);
+                    socket.emit("error", "Document not found");
+                    return;
+                }
+
+                // Allow any authenticated user who has the document ID to join the collaboration room
+                // Administrative tasks like rename/delete are still protected at the HTTP controller level.
+
+                let ydoc = ACTIVE_DOCS.get(documentId);
+                if (!ydoc) {
+                    ydoc = new Y.Doc();
+                    if (doc.content) {
+                        try {
+                            Y.applyUpdate(ydoc, new Uint8Array(doc.content));
+                            console.log(`[Socket] Loaded document ${documentId} content from database (size: ${doc.content.length} bytes)`);
+                        } catch (err) {
+                            console.error(`[Socket] Error parsing YJS document from DB buffer for doc ${documentId}:`, err);
+                        }
+                    }
+                    ACTIVE_DOCS.set(documentId, ydoc);
+                }
+
+                socket.join(documentId);
+                console.log(`[Socket] User ${socket.data.userId} successfully joined room for document ${documentId}`);
+                
+                const initialContent = doc.content || Y.encodeStateAsUpdate(ydoc);
+                socket.emit("load-document", initialContent);
+            } catch (err: any) {
+                console.error(`[Socket] Error in join-document handler for doc ${documentId}:`, err);
+                socket.emit("error", "Internal server error while joining document session");
+            }
         });
 
 

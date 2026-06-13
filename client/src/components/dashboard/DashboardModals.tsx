@@ -11,13 +11,20 @@ interface DashboardModalsProps {
     setDeletingId: (id: string | null) => void;
     onDelete: (id: string) => void;
     isCreating: boolean;
+    showJoin: boolean;
+    setShowJoin: (show: boolean) => void;
+    joinValue: string;
+    setJoinValue: (val: string) => void;
+    joinError: string;
+    onJoin: () => void;
 }
 
 const DashboardModals = ({
     showCreate, setShowCreate, newTitle, setNewTitle, onCreate,
     editingDoc, setEditingDoc, onRename,
     deletingId, setDeletingId, onDelete,
-    isCreating
+    isCreating,
+    showJoin, setShowJoin, joinValue, setJoinValue, joinError, onJoin
 }: DashboardModalsProps) => {
     return (
         <>
@@ -88,6 +95,40 @@ const DashboardModals = ({
                                 CONFIRM_PURGE
                             </button>
                             <button onClick={() => setDeletingId(null)} className="text-[10px] font-bold uppercase tracking-widest text-paper-ink-muted cursor-pointer">RETAIN_DATA</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {showJoin && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-paper-ink/20 backdrop-blur-[2px]">
+                    <div className="w-full max-w-md bg-white border-2 border-paper-ink p-8 shadow-[12px_12px_0px_0px_rgba(0,0,0,0.15)] animate-in fade-in zoom-in duration-200">
+                        <h3 className="text-xl font-black uppercase tracking-tighter mb-8 border-b-2 border-paper-ink pb-4">JOIN_SHARED_DOCUMENT</h3>
+                        <div className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold text-paper-ink-muted uppercase tracking-widest">DOCUMENT_ID_OR_LINK</label>
+                                <input
+                                    type="text"
+                                    autoFocus
+                                    placeholder="Enter document ID or copy link..."
+                                    value={joinValue}
+                                    onChange={(e) => setJoinValue(e.target.value)}
+                                    className="w-full px-4 py-3 bg-paper-bg border border-paper-border focus:border-paper-ink focus:outline-none transition-colors text-sm font-bold"
+                                />
+                            </div>
+                            {joinError && (
+                                <div className="p-4 bg-red-100 border border-red-600 text-red-600 text-[10px] font-bold uppercase tracking-widest animate-in fade-in">
+                                    [!] Error: {joinError}
+                                </div>
+                            )}
+                            <div className="flex flex-col gap-3 pt-4">
+                                <button
+                                    onClick={onJoin}
+                                    className="w-full py-4 bg-paper-ink text-white font-black uppercase tracking-widest hover:bg-paper-ink/90 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] relative overflow-hidden cursor-pointer"
+                                >
+                                    CONNECT_TO_DOCUMENT
+                                </button>
+                                <button onClick={() => setShowJoin(false)} className="text-[10px] font-bold uppercase tracking-widest text-paper-ink-muted cursor-pointer hover:text-paper-ink transition-colors">ABORT_OPERATION</button>
+                            </div>
                         </div>
                     </div>
                 </div>
