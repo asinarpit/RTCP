@@ -2,6 +2,7 @@ import express from "express"
 import 'dotenv/config'
 import {prisma} from './lib/prisma'
 import http from "http"
+import https from "https"
 import { Server } from "socket.io"
 import helmet from "helmet"
 import morgan from "morgan"
@@ -59,7 +60,7 @@ server.listen(PORT, ()=>{
     if (url) {
         console.log(`Self-pinging started for ${url}`);
         setInterval(() => {
-            http.get(url, (res) => {
+            https.get(url, (res) => {
                 console.log(`Self-ping status: ${res.statusCode}`);
             }).on('error', (err) => {
                 console.error(`Self-ping error: ${err.message}`);
