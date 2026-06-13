@@ -18,12 +18,28 @@ const app = express();
 const server = http.createServer(app);
 
 
+const allowedOrigins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "https://rtcp-pi.vercel.app"
+];
+
+if (process.env.CLIENT_URL) {
+    const envOrigins = process.env.CLIENT_URL.split(",").map(o => o.trim());
+    envOrigins.forEach(o => {
+        if (o && !allowedOrigins.includes(o)) {
+            allowedOrigins.push(o);
+        }
+    });
+}
+
 //middlewares
 app.use(cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: allowedOrigins,
     credentials: true,
 }));
 
+console.log("Allowed Origins:", allowedOrigins);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -38,7 +54,7 @@ app.use(errorHandler)
 //socket.io init
 const io = new Server(server, {
     cors: {
-        origin: process.env.CLIENT_URL || "http://localhost:5173",
+        origin: allowedOrigins,
         methods: ["GET", "POST"],
         credentials: true
     }
