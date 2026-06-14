@@ -15,6 +15,7 @@ import { Monitor } from "lucide-react";
 import MenuBar from "../components/editor/MenuBar";
 import EditorFooter from "../components/editor/EditorFooter";
 import EditorNav from "../components/editor/EditorNav";
+import { convertHtmlToMarkdown, triggerDownload } from "../utils/exporter";
 
 const API = import.meta.env.VITE_API_URL;
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
@@ -36,6 +37,7 @@ const EditorPage = () => {
     const { token, user } = useAuthStore();
     const [status, setStatus] = useState("connecting");
     const [showShareToast, setShowShareToast] = useState(false);
+    const [collaborators, setCollaborators] = useState<{ id: number; name: string; color: string }[]>([]);
 
     const { data: docData } = useQuery({
         queryKey: ["document", documentId],
@@ -56,8 +58,58 @@ const EditorPage = () => {
         setTimeout(() => setShowShareToast(false), 2000);
     };
 
+    const handleDownload = (format: "txt" | "html" | "md") => {
+        if (!editor) return;
+
+        let content = "";
+        let mimeType = "text/plain";
+        let extension = "txt";
+
+        if (format === "txt") {
+            content = editor.getText();
+            mimeType = "text/plain";
+            extension = "txt";
+        } else if (format === "html") {
+            content = editor.getHTML();
+            mimeType = "text/html";
+            extension = "html";
+        } else if (format === "md") {
+            const htmlContent = editor.getHTML();
+            content = convertHtmlToMarkdown(htmlContent);
+            mimeType = "text/markdown";
+            extension = "md";
+        }
+
+        const safeTitle = docTitle.replace(/[/\\?%*:|"<>]/g, "-").trim() || "untitled";
+        triggerDownload(`${safeTitle}.${extension}`, content, mimeType);
+    };
+
     const ydoc = useMemo(() => new Y.Doc(), []);
     const awareness = useMemo(() => new awarenessProtocol.Awareness(ydoc), [ydoc]);
+
+    useEffect(() => {
+        const updateCollaborators = () => {
+            const states = awareness.getStates();
+            const list: { id: number; name: string; color: string }[] = [];
+            states.forEach((state: any, clientId: number) => {
+                if (state.user) {
+                    list.push({
+                        id: clientId,
+                        name: state.user.name || "Guest",
+                        color: state.user.color || "#1a1a1a"
+                    });
+                }
+            });
+            setCollaborators(list);
+        };
+
+        updateCollaborators();
+        awareness.on("change", updateCollaborators);
+
+        return () => {
+            awareness.off("change", updateCollaborators);
+        };
+    }, [awareness]);
     const socket = useMemo(() => {
         return io(SOCKET_URL, {
             auth: { token }
@@ -170,9 +222,10 @@ const EditorPage = () => {
                 onBack={() => navigate("/dashboard")}
                 docTitle={docTitle}
                 status={status}
-                user={user}
                 onShare={handleShare}
                 showShareToast={showShareToast}
+                onDownload={handleDownload}
+                collaborators={collaborators}
             />
 
             <main className="max-w-5xl mx-auto py-6 sm:py-12 px-3 sm:px-4 space-y-6 sm:space-y-8">

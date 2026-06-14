@@ -69,7 +69,7 @@ const Login = () => {
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full px-4 py-4 bg-paper-bg border border-paper-border focus:border-paper-ink focus:outline-none transition-all text-xs font-bold uppercase tracking-wider placeholder:text-paper-ink-muted/20 shadow-inner"
+                                className="w-full px-4 py-4 bg-paper-bg border border-paper-border focus:border-paper-ink focus:outline-none transition-all text-xs font-bold tracking-wider placeholder:text-paper-ink-muted/20 shadow-inner"
                                 placeholder="name@email.com"
                                 required
                             />
@@ -85,7 +85,7 @@ const Login = () => {
                                     type={showPassword ? "text" : "password"}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full px-4 py-4 bg-paper-bg border border-paper-border focus:border-paper-ink focus:outline-none transition-all text-xs font-bold uppercase tracking-wider placeholder:text-paper-ink-muted/20 shadow-inner pr-12"
+                                    className="w-full px-4 py-4 bg-paper-bg border border-paper-border focus:border-paper-ink focus:outline-none transition-all text-xs font-bold tracking-wider placeholder:text-paper-ink-muted/20 shadow-inner pr-12"
                                     placeholder="••••••••"
                                     required
                                 />

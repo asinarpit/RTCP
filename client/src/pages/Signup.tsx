@@ -85,7 +85,7 @@ const Signup = () => {
                                 type="text" 
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                className="w-full px-4 py-4 bg-paper-bg border border-paper-border focus:border-paper-ink focus:outline-none transition-all text-xs font-bold uppercase tracking-wider placeholder:text-paper-ink-muted/20 shadow-inner"
+                                className="w-full px-4 py-4 bg-paper-bg border border-paper-border focus:border-paper-ink focus:outline-none transition-all text-xs font-bold tracking-wider placeholder:text-paper-ink-muted/20 shadow-inner"
                                 placeholder="Your Name"
                                 required
                             />
@@ -100,7 +100,7 @@ const Signup = () => {
                                 type="email" 
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full px-4 py-4 bg-paper-bg border border-paper-border focus:border-paper-ink focus:outline-none transition-all text-xs font-bold uppercase tracking-wider placeholder:text-paper-ink-muted/20 shadow-inner"
+                                className="w-full px-4 py-4 bg-paper-bg border border-paper-border focus:border-paper-ink focus:outline-none transition-all text-xs font-bold tracking-wider placeholder:text-paper-ink-muted/20 shadow-inner"
                                 placeholder="name@email.com"
                                 required
                             />
@@ -117,7 +117,7 @@ const Signup = () => {
                                         type={showPassword ? "text" : "password"} 
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="w-full px-4 py-4 bg-paper-bg border border-paper-border focus:border-paper-ink focus:outline-none transition-all text-xs font-bold uppercase tracking-wider placeholder:text-paper-ink-muted/20 shadow-inner pr-10"
+                                        className="w-full px-4 py-4 bg-paper-bg border border-paper-border focus:border-paper-ink focus:outline-none transition-all text-xs font-bold tracking-wider placeholder:text-paper-ink-muted/20 shadow-inner pr-10"
                                         placeholder="••••••••"
                                         required
                                     />
@@ -140,7 +140,7 @@ const Signup = () => {
                                         type={showConfirmPassword ? "text" : "password"} 
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
-                                        className="w-full px-4 py-4 bg-paper-bg border border-paper-border focus:border-paper-ink focus:outline-none transition-all text-xs font-bold uppercase tracking-wider placeholder:text-paper-ink-muted/20 shadow-inner pr-10"
+                                        className="w-full px-4 py-4 bg-paper-bg border border-paper-border focus:border-paper-ink focus:outline-none transition-all text-xs font-bold tracking-wider placeholder:text-paper-ink-muted/20 shadow-inner pr-10"
                                         placeholder="••••••••"
                                         required
                                     />
